@@ -1,82 +1,114 @@
-import React from 'react';
-import { Menu, Search, SlidersHorizontal } from 'lucide-react'; // Changed from Filter to ListFilter
+import React, { useState } from 'react';
+import { Menu, X } from 'lucide-react';
 
 interface HeaderProps {
-    onMenuClick?: () => void;
-    onSearch?: (query: string) => void;
-    onFilterClick?: () => void;
-    searchPlaceholder?: string;
     className?: string;
 }
 
-const Header: React.FC<HeaderProps> = ({
-    onMenuClick,
-    onSearch,
-    onFilterClick,
-    searchPlaceholder = 'Search...',
-    className = '',
-}) => {
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (onSearch) {
-            onSearch(e.target.value);
-        }
-    };
+const Header: React.FC<HeaderProps> = ({ className = '' }) => {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter' && onSearch) {
-            onSearch(e.currentTarget.value);
-        }
+    const toggleMenu = () => {
+        setIsMenuOpen(!isMenuOpen);
     };
 
     return (
         <header
-            className={`sticky top-0 z-50 bg-primary text-white shadow-md px-4 py-3 flex items-center justify-between ${className}`}
+            className={`sticky top-0 z-50 bg-primary text-white shadow-md px-4 py-3 ${className}`}
         >
-            {/* Logo */}
-            <a
-                href="/"
-                className="inline-flex items-center hover:text-secondary-1 transition-colors"
-                aria-label="Home"
-            >
-                <img
-                    src="/absent-text.svg"
-                    alt="ABSENT"
-                    className="h-6 w-auto" // Adjust height as needed
-                />
-            </a>
-
-            {/* Search bar */}
-            <div className="absolute left-1/2 -translate-x-1/2 w-[55%] min-w-[200px] max-w-[700px] flex items-center bg-white rounded-full px-3 py-1 focus-within:ring-2 focus-within:ring-secondary-1">
-                <Search
-                    size={18}
-                    className="text-gray-500 mr-2 flex-shrink-0"
-                    aria-hidden="true"
-                />
-                <input
-                    type="text"
-                    placeholder={searchPlaceholder}
-                    onChange={handleSearchChange}
-                    onKeyDown={handleKeyDown}
-                    className="flex-1 text-sm text-black bg-transparent focus:outline-none placeholder-gray-400"
-                    aria-label="Search"
-                />
-                <button
-                    onClick={onFilterClick}
-                    className="ml-2 p-1 rounded-full text-black hover:text-secondary-1 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary-1"
-                    aria-label="Filter options"
+            <div className="max-w-7xl mx-auto flex items-center justify-between">
+                {/* Logo */}
+                <a
+                    href="/"
+                    className="inline-flex items-center hover:text-secondary-1 transition-colors"
+                    aria-label="Home"
                 >
-                    <SlidersHorizontal size={18} /> {/* Changed from Filter to ListFilter */}
-                </button>
+                    <img
+                        src="/absent-text.svg"
+                        alt="ABSENT"
+                        className="h-6 w-auto"
+                    />
+                </a>
+
+                {/* Desktop Navigation */}
+                <nav className="hidden md:flex items-center space-x-6">
+                    <a
+                        href="/business"
+                        className="hover:text-secondary-1 transition-colors font-semibold"
+                    >
+                        For Business
+                    </a>
+                    <a
+                        href="/about"
+                        className="hover:text-secondary-1 transition-colors font-semibold"
+                    >
+                        About
+                    </a>
+                    <a
+                        href="/login"
+                        className="bg-secondary-1 hover:bg-secondary-2 text-white px-4 py-2 rounded-md transition-colors font-semibold"
+                    >
+                        Login/Sign up
+                    </a>
+                </nav>
+
+                {/* Mobile Menu Button */}
+                <div className="flex md:hidden items-center space-x-4">
+                    <a
+                        href="/login"
+                        className="bg-secondary-1 hover:bg-secondary-2 text-white px-3 py-1.5 text-sm rounded-md transition-colors font-semibold"
+                    >
+                        Login
+                    </a>
+                    <button
+                        onClick={toggleMenu}
+                        className="p-2 rounded-md hover:bg-secondary-3 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary-1"
+                        aria-label="Menu"
+                    >
+                        {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+                    </button>
+                </div>
             </div>
 
-            {/* Menu button */}
-            <button
-                onClick={onMenuClick}
-                className="p-2 rounded-md hover:bg-secondary-3 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary-1"
-                aria-label="Menu"
-            >
-                <Menu size={24} />
-            </button>
+            {/* Mobile Menu */}
+            {isMenuOpen && (
+                <div className="fixed inset-0 z-50 bg-primary text-white flex flex-col items-center justify-center px-6">
+                    {/* Close Button */}
+                    <button
+                        onClick={toggleMenu}
+                        className="absolute top-5 right-5 p-2 rounded-md hover:bg-secondary-3 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary-1"
+                        aria-label="Close menu"
+                    >
+                        <X size={32} />
+                    </button>
+
+                    {/* Menu Items */}
+                    <nav className="flex flex-col items-center space-y-6 text-lg font-semibold">
+                        <a
+                            href="/business"
+                            className="hover:text-secondary-1 transition-colors"
+                            onClick={toggleMenu}
+                        >
+                            For Business
+                        </a>
+                        <a
+                            href="/about"
+                            className="hover:text-secondary-1 transition-colors"
+                            onClick={toggleMenu}
+                        >
+                            About
+                        </a>
+                        <a
+                            href="/login"
+                            className="bg-secondary-1 hover:bg-secondary-2 text-white px-6 py-2 rounded-md transition-colors"
+                            onClick={toggleMenu}
+                        >
+                            Login / Sign Up
+                        </a>
+                    </nav>
+                </div>
+            )}
+
         </header>
     );
 };

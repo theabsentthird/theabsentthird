@@ -7,17 +7,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#2D1660',
-        secondary: {
-          1: '#E82CAD',
-          2: '#F3C13E',
-          3: '#4CD0D4',
-        },
-        // Define content colors directly
-        content: {
-          light: '#ffffff',
-          dark: '#242424',
-        }
+        primary: 'var(--primary)',
+        'secondary-1': 'var(--secondary-1)',
+        'secondary-2': 'var(--secondary-2)',
+        'secondary-3': 'var(--secondary-3)',
+        'content-light': 'var(--content-light)',
+        'content-dark': 'var(--content-dark)',
       },
     },
   },

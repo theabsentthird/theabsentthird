@@ -1,23 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Teachers:ital,wght@0,400..800;1,400..800&display=swap');
+
 @import "tailwindcss";
 
+@theme {
+  --color-primary: #2D1660;
+  --color-secondary-1: #E82CAD;
+  --color-secondary-2: #F3C13E;
+  --color-secondary-3: #4CD0D4;
+  --color-content-light: #FFFFFF;
+  --color-content-dark: #242424;
+}
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: "Teachers", sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
   color-scheme: light dark;
-  color: #242424; /* content.dark */
-  background-color: white;
-
+  color: var(--content-dark);
+  background-color: var(--content-light);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+
 @media (prefers-color-scheme: dark) {
   :root {
     color: #ffffff; /* content.light */
     background-color: #2D1660; /* primary */
+  }
+}
+
+/* Optional: Ensure Tailwind uses Teachers font by default */
+@layer base {
+  html {
+    font-family: "Teachers", sans-serif;
   }
 }
