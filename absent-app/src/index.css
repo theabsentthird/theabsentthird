@@ -37,3 +37,7 @@
     font-family: "Teachers", sans-serif;
   }
 }
+
+.leaflet-control-zoom {
+  margin-bottom: 3rem!important;
+}

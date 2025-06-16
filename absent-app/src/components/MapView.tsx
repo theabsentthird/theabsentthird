@@ -9,15 +9,39 @@ import {
 } from 'react-leaflet';
 import type { LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Search, Filter, X, MapPin, Calendar, ChevronDown } from 'lucide-react';
+import { Search, Filter, X, MapPin, Calendar, ChevronDown, Bookmark, Share2, CalendarDays, Clock, User, Mail, Phone } from 'lucide-react';
+
 
 // Types
-type MarkerData = {
+type BaseMarker = {
   id: string;
   position: LatLngExpression;
   popupText: string;
-  type: 'event' | 'venue';
 };
+
+type EventMarkerData = BaseMarker & {
+  type: 'event';
+  imageUrl: string;
+  date: string;
+  time: string;
+  hostedBy: string;
+  description: string;
+  price?: string;
+};
+
+type VenueMarkerData = BaseMarker & {
+  type: 'venue';
+  imageUrl: string;
+  ownedBy: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  description: string;
+  capacity?: string;
+};
+
+type MarkerData = EventMarkerData | VenueMarkerData;
+
+
 
 type MapConfig = {
   center: LatLngExpression;
@@ -62,9 +86,32 @@ const FILTER_OPTIONS: FilterOption[] = [
 // Custom Components
 const FlyToMarker: React.FC<{ position: LatLngExpression }> = ({ position }) => {
   const map = useMap();
+
   useEffect(() => {
-    map.flyTo(position, map.getZoom());
-  }, [position]);
+    if (!position) return;
+    console.log("FlyToMarker triggered with position:", position);
+
+    const fly = () => {
+      const ZOOM_LEVEL = map.getZoom();
+      const targetPoint = map.project(position, ZOOM_LEVEL);
+      const OFFSET_Y = 150;
+      const adjustedPoint = targetPoint.subtract([0, OFFSET_Y]);
+      const newLatLng = map.unproject(adjustedPoint, ZOOM_LEVEL);
+
+      console.log("Flying to:", newLatLng);
+
+      map.flyTo(newLatLng, ZOOM_LEVEL, {
+        animate: true,
+        duration: 0.5,
+        easeLinearity: 0.25,
+      });
+    };
+
+    // Add a small delay to ensure any popup animations complete
+    const timer = setTimeout(fly, 100);
+    return () => clearTimeout(timer);
+  }, [position, map]);
+
   return null;
 };
 
@@ -357,6 +404,7 @@ const MapView: React.FC = () => {
         scrollWheelZoom={DEFAULT_CONFIG.scrollWheelZoom}
         className="w-full h-full z-0"
         zoomControl={false}
+
       >
         <TileLayer
           attribution={DEFAULT_CONFIG.tileLayer.attribution}
@@ -366,23 +414,182 @@ const MapView: React.FC = () => {
         {markers
           .filter(marker => marker.type === activeFilter)
           .map((marker) => (
-            <Marker key={marker.id} position={marker.position}>
+            <Marker
+              key={marker.id}
+              position={marker.position}
+              eventHandlers={{
+                click: () => {
+                  setSelectedMarker(marker.position);
+                  console.log("Marker clicked:", marker.position);
+                }
+              }}
+            >
               <Popup className="custom-popup">
-                <div className="font-sans">
-                  <h3 className="font-bold text-blue-600">{marker.popupText}</h3>
-                  <p className="text-xs text-gray-500 mt-1 capitalize">{marker.type}</p>
-                </div>
+                <PopupContent marker={marker} />
               </Popup>
             </Marker>
           ))}
 
         {selectedMarker && <FlyToMarker position={selectedMarker} />}
-        <ZoomControl position="bottomright" />
+        <div className="leaflet-bottom leaflet-right">
+          <ZoomControl position="bottomright" />
+        </div>
       </MapContainer>
 
       <MapControls />
+
+      <div className="absolute bottom-0 left-0 w-full z-[1000]">
+        <button
+          onClick={() => {
+            document.getElementById('featured-events')?.scrollIntoView({ behavior: 'smooth' });
+          }}
+          className="w-full py-4 bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+        >
+          <ChevronDown className="w-5 h-5" />
+          Explore
+        </button>
+      </div>
     </div>
   );
 };
+const PopupContent: React.FC<{ marker: MarkerData }> = ({ marker }) => {
+  if (marker.type === 'event') {
+    return (
+      <div className="w-64">
+        <div className="flex gap-3">
+          {/* Event Image */}
+          <div className="w-1/3 h-24 bg-gray-200 rounded-lg overflow-hidden">
+            <img
+              src={marker.imageUrl || 'https://via.placeholder.com/100x100.png?text=Event'}
+              alt={marker.popupText}
+              className="w-full h-full object-cover"
+            />
+          </div>
+
+          {/* Event Details */}
+          <div className="w-2/3">
+            <div className="flex items-center gap-1 text-xs text-blue-600 mb-1">
+              <CalendarDays className="w-3 h-3" />
+              <span>{marker.date || '01/01/25'}</span>
+              <Clock className="w-3 h-3 ml-2" />
+              <span>{marker.time || '18:00'}</span>
+            </div>
+
+            <h3 className="font-bold text-gray-800 text-sm line-clamp-2">
+              {marker.popupText || 'Sample Event Title'}
+            </h3>
+
+            <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
+              <User className="w-3 h-3" />
+              <span>Hosted by {marker.hostedBy || 'John Doe'}</span>
+            </div>
+
+            <div className="flex items-center gap-1 text-xs text-gray-500">
+              <MapPin className="w-3 h-3" />
+              <span className="line-clamp-1">123 Event St, Galway</span>
+            </div>
+          </div>
+        </div>
+
+        <p className="text-xs text-gray-600 mt-2 line-clamp-3">
+          {marker.description ||
+            'Join us for an unforgettable evening of music, art, and community spirit!'}
+        </p>
+
+        <div className="flex justify-between items-center mt-3">
+          <span className="text-sm font-bold text-blue-600">
+            {marker.price || '€15'}
+          </span>
+
+          <div className="flex gap-2">
+            <button className="p-1.5 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100">
+              <Bookmark className="w-4 h-4" />
+            </button>
+            <button className="p-1.5 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100">
+              <Share2 className="w-4 h-4" />
+            </button>
+            <button className="px-3 py-1.5 rounded-md bg-blue-600 text-white text-xs font-medium hover:bg-blue-700">
+              Book
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // VENUE CONTENT 💫
+  if (marker.type === 'venue') {
+    return (
+      <div className="w-64">
+        {/* Image */}
+        <div className="w-full h-24 bg-gray-200 rounded-lg overflow-hidden mb-2">
+          <img
+            src={marker.imageUrl || 'https://via.placeholder.com/300x100.png?text=Venue'}
+            alt={marker.popupText}
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        {/* Location */}
+        <div className="flex items-center gap-1 text-xs text-blue-600 mb-1">
+          <MapPin className="w-4 h-4" />
+          <span>Galway, Ireland</span> {/* You can make this dynamic later */}
+        </div>
+
+        {/* Title */}
+        <h3 className="font-bold text-gray-800 text-sm line-clamp-2 mb-1">
+          {marker.popupText || 'Venue Name'}
+        </h3>
+
+        {/* Owned By */}
+        <div className="flex items-center gap-1 text-xs text-gray-500 mb-2">
+          <User className="w-3 h-3" />
+          <span>Owned by {marker.ownedBy || 'Venue Host'}</span>
+        </div>
+
+        {/* Contact & Actions */}
+        <div className="flex justify-between items-center mt-1 mb-2">
+          <div className="flex gap-1">
+            {marker.contactEmail && (
+              <a
+                href={`mailto:${marker.contactEmail}`}
+                className="p-1.5 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100"
+                title="Email"
+              >
+                <Mail className="w-4 h-4" />
+              </a>
+            )}
+            {marker.contactPhone && (
+              <a
+                href={`tel:${marker.contactPhone}`}
+                className="p-1.5 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100"
+                title="Call"
+              >
+                <Phone className="w-4 h-4" />
+              </a>
+            )}
+          </div>
+
+          <div className="flex gap-2">
+            <button className="p-1.5 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100">
+              <Bookmark className="w-4 h-4" />
+            </button>
+            <button className="p-1.5 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100">
+              <Share2 className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Description */}
+        <p className="text-xs text-gray-600 line-clamp-3">
+          {marker.description || 'A beautiful venue for hosting all kinds of events and gatherings.'}
+        </p>
+      </div>
+    );
+  }
+
+  return <div className="text-sm text-gray-500">Invalid marker type.</div>;
+};
+
 
 export default MapView;

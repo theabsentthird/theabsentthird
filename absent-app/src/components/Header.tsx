@@ -14,7 +14,7 @@ const Header: React.FC<HeaderProps> = ({ className = '' }) => {
 
     return (
         <header
-            className={`sticky top-0 z-50 bg-primary text-white shadow-md px-4 py-3 ${className}`}
+            className={`sticky top-0 z-3000 bg-primary text-white shadow-md px-4 py-3 ${className}`}
         >
             <div className="max-w-7xl mx-auto flex items-center justify-between">
                 {/* Logo */}
