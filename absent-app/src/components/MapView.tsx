@@ -443,7 +443,7 @@ const MapView: React.FC = () => {
           onClick={() => {
             document.getElementById('featured-events')?.scrollIntoView({ behavior: 'smooth' });
           }}
-          className="w-full py-4 bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+          className="w-full py-4 bg-primary text-white font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
         >
           <ChevronDown className="w-5 h-5" />
           Explore

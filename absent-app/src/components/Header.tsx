@@ -33,10 +33,16 @@ const Header: React.FC<HeaderProps> = ({ className = '' }) => {
                 {/* Desktop Navigation */}
                 <nav className="hidden md:flex items-center space-x-6">
                     <a
-                        href="/business"
+                        href="/host-your-event"
                         className="hover:text-secondary-1 transition-colors font-semibold"
                     >
-                        For Business
+                        Host Your Event
+                    </a>
+                    <a
+                        href="/post-your-venue"
+                        className="hover:text-secondary-1 transition-colors font-semibold"
+                    >
+                        Post Your Venue
                     </a>
                     <a
                         href="/about"

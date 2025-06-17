@@ -4,6 +4,7 @@
 
 @theme {
   --color-primary: #2D1660;
+  --color-primary-2: #958AB1;
   --color-secondary-1: #E82CAD;
   --color-secondary-2: #F3C13E;
   --color-secondary-3: #4CD0D4;
@@ -21,6 +22,7 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
 }
 
 
