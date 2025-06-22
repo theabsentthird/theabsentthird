@@ -10,7 +10,7 @@ import {
 import type { LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Search, Filter, X, MapPin, Calendar, ChevronDown, Bookmark, Share2, CalendarDays, Clock, User, Mail, Phone } from 'lucide-react';
-
+import { motion, AnimatePresence } from "framer-motion";
 
 // Types
 type BaseMarker = {
@@ -57,6 +57,7 @@ type FilterOption = {
   value: 'event' | 'venue';
   label: string;
   icon: React.ReactNode;
+  color: string;
 };
 
 // Constants
@@ -75,13 +76,91 @@ const FILTER_OPTIONS: FilterOption[] = [
     value: 'event',
     label: 'Events',
     icon: <Calendar className="w-4 h-4" />,
+    color: 'bg-secondary-1' // Add color for each option
   },
   {
     value: 'venue',
     label: 'Venues',
     icon: <MapPin className="w-4 h-4" />,
-  },
+    color: 'bg--secondary-2'
+  }
 ];
+
+const FilterToggle = ({
+  activeFilter,
+  setActiveFilter
+}: {
+  activeFilter: 'event' | 'venue';
+  setActiveFilter: (filter: 'event' | 'venue') => void;
+}) => {
+  return (
+    <div className="flex items-center justify-end md:justify-start">
+      {/* Desktop Version */}
+      <div className="hidden md:flex items-center relative bg-white/90 backdrop-blur-sm rounded-full shadow-sm overflow-hidden border border-gray-200 p-1">
+        {FILTER_OPTIONS.map((option) => (
+          <button
+            key={option.value}
+            onClick={() => setActiveFilter(option.value)}
+            className={`relative z-10 px-4 py-2 flex items-center gap-2 transition-colors ${activeFilter === option.value ? 'text-white' : 'text-gray-600 hover:text-gray-800'}`}
+          >
+            {option.icon}
+            <span className="text-sm font-medium">{option.label}</span>
+          </button>
+        ))}
+
+        {/* Animated background */}
+        <motion.div
+          className={`absolute ${activeFilter === 'event' ? 'bg-secondary-1' : 'bg-secondary-2'} rounded-full h-8`}
+          initial={false}
+          animate={{
+            left: activeFilter === 'event' ? '0.25rem' : '50%',
+            width: 'calc(50% - 0.5rem)'
+          }}
+          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+        />
+      </div>
+
+      {/* Mobile Version - Improved with layoutId */}
+      <div className="md:hidden relative w-[7rem] h-10">
+        <div className="absolute inset-0 flex items-center justify-between px-3 text-xs font-medium w-full">
+          <span className={`${activeFilter === 'event' ? 'text-blue-600' : 'text-gray-400'}`}>Events</span>
+          <span className={`${activeFilter === 'venue' ? 'text-purple-600' : 'text-gray-400'}`}>Venues</span>
+        </div>
+
+        <button
+          onClick={() => setActiveFilter(activeFilter === 'event' ? 'venue' : 'event')}
+          className="w-full h-full rounded-full bg-white border border-gray-200 relative overflow-hidden"
+        >
+          <motion.div
+            layoutId="mobileToggle"
+            className={`absolute w-12 h-8 rounded-full top-1 shadow-md flex items-center justify-center ${activeFilter === 'event' ? 'bg-secondary-1' : 'bg-secondary-2'
+              }`}
+            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+            style={{
+              left: activeFilter === 'event' ? '0.25rem' : 'calc(100% - 3rem - 0.25rem)',
+            }}
+          >
+            <motion.span
+              key={activeFilter}
+              className="text-white"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.2 }}
+            >
+              {activeFilter === 'event' ? (
+                <Calendar className="w-4 h-4" />
+              ) : (
+                <MapPin className="w-4 h-4" />
+              )}
+            </motion.span>
+          </motion.div>
+        </button>
+      </div>
+
+    </div>
+  );
+};
 
 // Custom Components
 const FlyToMarker: React.FC<{ position: LatLngExpression }> = ({ position }) => {
@@ -147,14 +226,14 @@ const SearchResults: React.FC<{
           {results.map((marker) => (
             <li
               key={marker.id}
-              className="p-3 hover:bg-blue-50 cursor-pointer transition-colors flex items-center gap-3"
+              className="p-3 hover:bg-blue-50cursor-pointer transition-colors flex items-center gap-3"
               onClick={() => onSelect(marker.position)}
             >
               <div className="bg-blue-100 p-2 rounded-full">
                 {marker.type === 'event' ? (
-                  <Calendar className="w-4 h-4 text-blue-600" />
+                  <Calendar className="w-4 h-4 text-primary" />
                 ) : (
-                  <MapPin className="w-4 h-4 text-blue-600" />
+                  <MapPin className="w-4 h-4 text-primary" />
                 )}
               </div>
               <div>
@@ -170,10 +249,12 @@ const SearchResults: React.FC<{
 };
 
 // Main Component
-const MapView: React.FC = () => {
+const MapView: React.FC<{
+  activeFilter: 'event' | 'venue';
+  setActiveFilter: (val: 'event' | 'venue') => void;
+}> = ({ activeFilter, setActiveFilter }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMarker, setSelectedMarker] = useState<LatLngExpression | null>(null);
-  const [activeFilter, setActiveFilter] = useState<'event' | 'venue'>('event');
   const [markers, setMarkers] = useState<MarkerData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showSearchPanel, setShowSearchPanel] = useState(false);
@@ -256,132 +337,102 @@ const MapView: React.FC = () => {
     <div className="relative w-full h-screen" style={{ height: 'calc(100vh - 64px)' }}>
       {/* Map Header */}
       <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] w-[90%] max-w-4xl">
-        <div className="flex flex-col md:flex-row gap-3">
-          {/* Date */}
-          <div className="hidden md:flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-xl shadow-sm p-3">
-            <Calendar className="w-5 h-5 text-blue-600" />
-            <span className="text-sm font-medium text-gray-700">{formattedDate}</span>
-          </div>
+        <div className="flex flex-col gap-3">
+          {/* Row 1: Search bar */}
+          <div className="flex flex-col md:flex-row gap-3 items-start md:items-center justify-between">
+            {/* Search */}
+            <div className="flex-1 relative w-full">
+              <div className="relative flex items-center bg-white/90 backdrop-blur-sm rounded-xl shadow-sm overflow-hidden">
+                {/* Filter Button */}
+                <button
+                  className="px-3 h-full flex items-center justify-center text-gray-500 hover:text-primary transition-colors"
+                  onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                >
+                  <Filter className="w-5 h-5" />
+                </button>
 
-          {/* Search */}
-          <div className="flex-1 relative">
-            <div className="relative flex items-center bg-white/90 backdrop-blur-sm rounded-xl shadow-sm overflow-hidden">
-              {/* Filter Button */}
-              <button
-                className="px-3 h-full flex items-center justify-center text-gray-500 hover:text-blue-600 transition-colors"
-                onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-              >
-                <Filter className="w-5 h-5" />
-              </button>
+                {/* Filter Dropdown */}
+                {showFilterDropdown && (
+                  <div className="absolute z-50 top-full mt-2 bg-white rounded-lg shadow-lg py-1 w-40 md:w-auto right-0 md:left-auto">
+                    {FILTER_OPTIONS.map((option) => (
+                      <button
+                        key={option.value}
+                        className={`w-full px-4 py-2 text-left flex items-center gap-2 ${activeFilter === option.value
+                          ? 'bg-blue-50 text-primary'
+                          : 'text-gray-700 hover:bg-gray-100'
+                          }`}
+                        onClick={() => {
+                          setActiveFilter(option.value);
+                          setShowFilterDropdown(false);
+                        }}
+                      >
+                        {option.icon}
+                        <span className="text-sm">{option.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
 
-              {/* Filter Dropdown */}
-              {showFilterDropdown && (
-                <div className="absolute z-50 top-full mt-2 bg-white rounded-lg shadow-lg py-1 w-40 md:w-auto right-0 md:left-auto">
-                  {FILTER_OPTIONS.map((option) => (
+                {/* Search Input */}
+                <input
+                  type="text"
+                  placeholder="Search locations..."
+                  className="flex-1 py-3 px-2 focus:outline-none bg-transparent text-gray-700 placeholder-gray-400"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && searchTerm.trim()) {
+                      setShowSearchPanel(true);
+                    }
+                  }}
+                />
+
+                {/* Search Icon */}
+                <button
+                  className="px-3 h-full flex items-center justify-center text-gray-500 hover:text-primary transition-colors"
+                  onClick={() => searchTerm.trim() && setShowSearchPanel(true)}
+                >
+                  <Search className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Active Filter Tag */}
+              {searchTerm && (
+                <div className="absolute left-12 mt-2 flex items-center gap-2">
+                  <div className="inline-flex items-center bg-blue-100 text-blue-700 text-xs font-medium px-3 py-1 rounded-full shadow">
+                    {FILTER_OPTIONS.find(o => o.value === activeFilter)?.label}
+                    <ChevronDown className="w-3 h-3 ml-1" />
+                  </div>
+                  <div className="inline-flex items-center bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1 rounded-full shadow">
+                    {searchTerm}
                     <button
-                      key={option.value}
-                      className={`w-full px-4 py-2 text-left flex items-center gap-2 ${activeFilter === option.value
-                        ? 'bg-blue-50 text-blue-600'
-                        : 'text-gray-700 hover:bg-gray-100'
-                        }`}
+                      className="ml-1 text-gray-500 hover:text-red-500 transition-colors"
                       onClick={() => {
-                        setActiveFilter(option.value);
-                        setShowFilterDropdown(false);
+                        setSearchTerm('');
+                        setShowSearchPanel(false);
                       }}
                     >
-                      {option.icon}
-                      <span className="text-sm">{option.label}</span>
+                      <X className="w-3 h-3" />
                     </button>
-                  ))}
+                  </div>
                 </div>
               )}
-
-
-              {/* Search Input */}
-              <input
-                type="text"
-                placeholder="Search locations..."
-                className="flex-1 py-3 px-2 focus:outline-none bg-transparent text-gray-700 placeholder-gray-400"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && searchTerm.trim()) {
-                    setShowSearchPanel(true);
-                  }
-                }}
-              />
-
-              {/* Search Icon */}
-              <button
-                className="px-3 h-full flex items-center justify-center text-gray-500 hover:text-blue-600 transition-colors"
-                onClick={() => searchTerm.trim() && setShowSearchPanel(true)}
-              >
-                <Search className="w-5 h-5" />
-              </button>
             </div>
 
-            {/* Active Filter Tag */}
-            {searchTerm && (
-              <div className="absolute left-12 mt-2 flex items-center gap-2">
-                <div className="inline-flex items-center bg-blue-100 text-blue-700 text-xs font-medium px-3 py-1 rounded-full shadow">
-                  {FILTER_OPTIONS.find(o => o.value === activeFilter)?.label}
-                  <ChevronDown className="w-3 h-3 ml-1" />
-                </div>
-                <div className="inline-flex items-center bg-gray-100 text-gray-700 text-xs font-medium px-3 py-1 rounded-full shadow">
-                  {searchTerm}
-                  <button
-                    className="ml-1 text-gray-500 hover:text-red-500 transition-colors"
-                    onClick={() => {
-                      setSearchTerm('');
-                      setShowSearchPanel(false);
-                    }}
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Minimalistic Icon Toggle (Mobile - right side) */}
-            <div className="flex md:hidden justify-end mt-2 pr-2">
-              <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-xl shadow-sm p-1">
-                {FILTER_OPTIONS.map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => setActiveFilter(option.value)}
-                    className={`
-          p-2 rounded-full transition-colors
-          ${activeFilter === option.value
-                        ? 'bg-blue-600 text-white'
-                        : 'text-gray-500 hover:bg-gray-100'}
-        `}
-                    aria-label={option.label}
-                  >
-                    {option.icon}
-                  </button>
-                ))}
-              </div>
+            {/* Date - now always visible */}
+            <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-xl shadow-sm p-3 mt-2 md:mt-0 md:ml-4 self-end">
+              <Calendar className="w-5 h-5 text-primary" />
+              <span className="text-sm font-medium text-gray-700">{formattedDate}</span>
             </div>
-
-
           </div>
 
-
-          {/* Filter Toggle - Desktop */}
-          <div className="hidden md:flex items-center bg-white/90 backdrop-blur-sm rounded-xl shadow-sm overflow-hidden">
-            {FILTER_OPTIONS.map((option) => (
-              <button
-                key={option.value}
-                className={`px-4 py-3 flex items-center gap-2 transition-colors ${activeFilter === option.value ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
-                onClick={() => setActiveFilter(option.value)}
-              >
-                {option.icon}
-                <span className="text-sm font-medium">{option.label}</span>
-              </button>
-            ))}
+          {/* Row 2: Toggle (only) */}
+          <div className="flex justify-end md:justify-end">
+            <FilterToggle activeFilter={activeFilter} setActiveFilter={setActiveFilter} />
           </div>
         </div>
       </div>
+
 
       {/* Search Panel - Positioned differently now */}
       {showSearchPanel && (
@@ -443,9 +494,13 @@ const MapView: React.FC = () => {
           onClick={() => {
             document.getElementById('featured-events')?.scrollIntoView({ behavior: 'smooth' });
           }}
-          className="w-full py-4 bg-primary text-white font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+          className="w-full py-6 text-white text-lg font-semibold tracking-wide flex items-center justify-center gap-3 transition-all"
+          style={{
+            background: 'linear-gradient(to top, var(--color-primary), transparent)',
+            backdropFilter: 'blur(2px)',
+          }}
         >
-          <ChevronDown className="w-5 h-5" />
+          <ChevronDown className="w-6 h-6" />
           Explore
         </button>
       </div>
@@ -453,6 +508,45 @@ const MapView: React.FC = () => {
   );
 };
 const PopupContent: React.FC<{ marker: MarkerData }> = ({ marker }) => {
+  // Common action buttons component
+  const ActionButtons = ({ onBook }: { onBook?: () => void }) => (
+    <div className="flex justify-between items-center mt-3">
+      {onBook ? (
+        <span className="text-sm font-bold text-primary">
+          {marker.type === 'event' ? (marker.price || '€15') : 'View Details'}
+        </span>
+      ) : (
+        <div />
+      )}
+
+      <div className="flex gap-2 items-center">
+        <button
+          className="p-1.5 rounded-full bg-blue-50 text-primary hover:bg-blue-100 flex items-center gap-1"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigator.clipboard.writeText(window.location.href);
+            // Add toast notification in your app
+          }}
+        >
+          <Share2 className="w-4 h-4" />
+          <span className="text-xs hidden sm:inline">Share</span>
+        </button>
+        <button className="p-1.5 rounded-full bg-blue-50 text-primary hover:bg-blue-100 flex items-center gap-1">
+          <Bookmark className="w-4 h-4" />
+          <span className="text-xs hidden sm:inline">Save</span>
+        </button>
+        {onBook && (
+          <button
+            className="px-3 py-1.5 rounded-md bg-primary text-white text-xs font-medium hover:bg-primary-600"
+            onClick={onBook}
+          >
+            {marker.type === 'event' ? 'Book Now' : 'Contact'}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+
   if (marker.type === 'event') {
     return (
       <div className="w-64">
@@ -468,7 +562,7 @@ const PopupContent: React.FC<{ marker: MarkerData }> = ({ marker }) => {
 
           {/* Event Details */}
           <div className="w-2/3">
-            <div className="flex items-center gap-1 text-xs text-blue-600 mb-1">
+            <div className="flex items-center gap-1 text-xs text-primary mb-1">
               <CalendarDays className="w-3 h-3" />
               <span>{marker.date || '01/01/25'}</span>
               <Clock className="w-3 h-3 ml-2" />
@@ -496,100 +590,73 @@ const PopupContent: React.FC<{ marker: MarkerData }> = ({ marker }) => {
             'Join us for an unforgettable evening of music, art, and community spirit!'}
         </p>
 
-        <div className="flex justify-between items-center mt-3">
-          <span className="text-sm font-bold text-blue-600">
-            {marker.price || '€15'}
-          </span>
-
-          <div className="flex gap-2">
-            <button className="p-1.5 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100">
-              <Bookmark className="w-4 h-4" />
-            </button>
-            <button className="p-1.5 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100">
-              <Share2 className="w-4 h-4" />
-            </button>
-            <button className="px-3 py-1.5 rounded-md bg-blue-600 text-white text-xs font-medium hover:bg-blue-700">
-              Book
-            </button>
-          </div>
-        </div>
+        <ActionButtons onBook={() => console.log('Booking event')} />
       </div>
     );
   }
 
-  // VENUE CONTENT 💫
+  // VENUE CONTENT (now matching event layout)
   if (marker.type === 'venue') {
     return (
       <div className="w-64">
-        {/* Image */}
-        <div className="w-full h-24 bg-gray-200 rounded-lg overflow-hidden mb-2">
-          <img
-            src={marker.imageUrl || 'https://via.placeholder.com/300x100.png?text=Venue'}
-            alt={marker.popupText}
-            className="w-full h-full object-cover"
-          />
-        </div>
-
-        {/* Location */}
-        <div className="flex items-center gap-1 text-xs text-blue-600 mb-1">
-          <MapPin className="w-4 h-4" />
-          <span>Galway, Ireland</span> {/* You can make this dynamic later */}
-        </div>
-
-        {/* Title */}
-        <h3 className="font-bold text-gray-800 text-sm line-clamp-2 mb-1">
-          {marker.popupText || 'Venue Name'}
-        </h3>
-
-        {/* Owned By */}
-        <div className="flex items-center gap-1 text-xs text-gray-500 mb-2">
-          <User className="w-3 h-3" />
-          <span>Owned by {marker.ownedBy || 'Venue Host'}</span>
-        </div>
-
-        {/* Contact & Actions */}
-        <div className="flex justify-between items-center mt-1 mb-2">
-          <div className="flex gap-1">
-            {marker.contactEmail && (
-              <a
-                href={`mailto:${marker.contactEmail}`}
-                className="p-1.5 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100"
-                title="Email"
-              >
-                <Mail className="w-4 h-4" />
-              </a>
-            )}
-            {marker.contactPhone && (
-              <a
-                href={`tel:${marker.contactPhone}`}
-                className="p-1.5 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100"
-                title="Call"
-              >
-                <Phone className="w-4 h-4" />
-              </a>
-            )}
+        <div className="flex gap-3">
+          {/* Venue Image */}
+          <div className="w-1/3 h-24 bg-gray-200 rounded-lg overflow-hidden">
+            <img
+              src={marker.imageUrl || 'https://via.placeholder.com/100x100.png?text=Venue'}
+              alt={marker.popupText}
+              className="w-full h-full object-cover"
+            />
           </div>
 
-          <div className="flex gap-2">
-            <button className="p-1.5 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100">
-              <Bookmark className="w-4 h-4" />
-            </button>
-            <button className="p-1.5 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100">
-              <Share2 className="w-4 h-4" />
-            </button>
+          {/* Venue Details */}
+          <div className="w-2/3">
+            <div className="flex items-center gap-1 text-xs text-primary mb-1">
+              <MapPin className="w-3 h-3" />
+              <span>Galway, Ireland</span>
+            </div>
+
+            <h3 className="font-bold text-gray-800 text-sm line-clamp-2">
+              {marker.popupText || 'Venue Name'}
+            </h3>
+
+            <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
+              <User className="w-3 h-3" />
+              <span>Owned by {marker.ownedBy || 'Venue Host'}</span>
+            </div>
+
+            <div className="flex items-center gap-1 text-xs text-gray-500">
+              {marker.contactEmail && (
+                <a
+                  href={`mailto:${marker.contactEmail}`}
+                  className="flex items-center gap-1 hover:text-primary"
+                >
+                  <Mail className="w-3 h-3" />
+                  <span className="line-clamp-1">Email</span>
+                </a>
+              )}
+              {marker.contactPhone && (
+                <a
+                  href={`tel:${marker.contactPhone}`}
+                  className="flex items-center gap-1 ml-2 hover:text-primary"
+                >
+                  <Phone className="w-3 h-3" />
+                  <span className="line-clamp-1">Call</span>
+                </a>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Description */}
-        <p className="text-xs text-gray-600 line-clamp-3">
+        <p className="text-xs text-gray-600 mt-2 line-clamp-3">
           {marker.description || 'A beautiful venue for hosting all kinds of events and gatherings.'}
         </p>
+
+        <ActionButtons onBook={() => console.log('Contacting venue')} />
       </div>
     );
   }
 
   return <div className="text-sm text-gray-500">Invalid marker type.</div>;
 };
-
-
 export default MapView;

@@ -3,12 +3,12 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #2D1660;
-  --color-primary-2: #958AB1;
-  --color-secondary-1: #E82CAD;
-  --color-secondary-2: #F3C13E;
-  --color-secondary-3: #4CD0D4;
-  --color-content-light: #FFFFFF;
+  --color-primary: #2D1660; /*dark blue*/
+  --color-primary-2: #958AB1; /*grey blue*/
+  --color-secondary-1: #E82CAD; /*hot pink*/
+  --color-secondary-2: #F3C13E; /*bright yellow*/
+  --color-secondary-3: #4CD0D4; /*neon blue*/
+  --color-content-light: #FFFFFF; 
   --color-content-dark: #242424;
 }
 :root {
@@ -41,5 +41,5 @@
 }
 
 .leaflet-control-zoom {
-  margin-bottom: 3rem!important;
+  margin-bottom: 4rem!important;
 }
