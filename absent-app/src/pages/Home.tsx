@@ -4,6 +4,7 @@ import FeaturedEvents from '../components/FeaturedCalendarList';
 import Footer from '../components/Footer';
 import NewsletterSignUp from '../components/NewsletterSignUp';
 import FindTypeSelector from '../components/FindTypeSelector';
+import ScrollToTopButton from '../components/ScrollToTopButton';
 
 const Home = () => {
   const [hasSelectedType, setHasSelectedType] = useState(false);
@@ -35,6 +36,7 @@ const Home = () => {
       )}
       <FeaturedEvents />
       <NewsletterSignUp />
+      <ScrollToTopButton />
       <Footer />
     </main>
   );

@@ -334,7 +334,7 @@ const MapView: React.FC<{
   }
 
   return (
-    <div className="relative w-full h-screen" style={{ height: 'calc(100vh - 64px)' }}>
+    <div id="map-view" className="relative w-full h-screen" style={{ height: 'calc(100vh - 64px)' }}>
       {/* Map Header */}
       <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] w-[90%] max-w-4xl">
         <div className="flex flex-col gap-3">
