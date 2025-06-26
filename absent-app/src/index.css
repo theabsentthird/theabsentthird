@@ -26,13 +26,6 @@
 }
 
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    color: #ffffff; /* content.light */
-    background-color: #2D1660; /* primary */
-  }
-}
-
 /* Optional: Ensure Tailwind uses Teachers font by default */
 @layer base {
   html {

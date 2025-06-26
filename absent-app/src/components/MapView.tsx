@@ -22,22 +22,30 @@ type BaseMarker = {
 type EventMarkerData = BaseMarker & {
   type: 'event';
   imageUrl: string;
-  date: string;
-  time: string;
-  hostedBy: string;
+  date: string; // or ISO string
+  time: {
+    start: string;
+    end: string;
+  };
+  hostedBy: string; // derived from organizer_id
   description: string;
-  price?: string;
+  price?: {
+    amount: number;
+    currency: string;
+  };
 };
 
 type VenueMarkerData = BaseMarker & {
   type: 'venue';
   imageUrl: string;
-  ownedBy: string;
+  description: string;
+  ownedBy: string; // derived from owner_id
+  capacity?: number;
   contactEmail?: string;
   contactPhone?: string;
-  description: string;
-  capacity?: string;
+  amenities?: string[]; // optional
 };
+
 
 type MarkerData = EventMarkerData | VenueMarkerData;
 
@@ -267,36 +275,66 @@ const MapView: React.FC<{
         // Mock data - replace with real API call
         const mockData: MarkerData[] = [
           {
-            id: '1',
+            id: 'v1',
+            type: 'venue',
             position: [53.2707, -9.0568],
-            popupText: 'You are here in Galway 🧡',
-            type: 'venue'
+            popupText: 'Galway Event Hall',
+            imageUrl: 'https://via.placeholder.com/100x100.png?text=Venue',
+            description: 'Spacious venue for concerts and art exhibitions.',
+            ownedBy: 'VenueHost Co.',
+            capacity: 300,
+            contactEmail: 'info@venuehost.com',
+            contactPhone: '+353-91-555-1234',
+            amenities: ['WiFi', 'Parking', 'Stage']
           },
           {
-            id: '2',
+            id: 'v2',
+            type: 'venue',
             position: [53.3438, -8.9995],
-            popupText: 'NUIG 🏫',
-            type: 'venue'
+            popupText: 'NUIG Campus Theatre',
+            imageUrl: 'https://via.placeholder.com/100x100.png?text=Venue',
+            description: 'Modern auditorium for academic and public events.',
+            ownedBy: 'NUIG Admin',
+            capacity: 200
           },
           {
-            id: '3',
-            position: [53.2766, -9.0691],
-            popupText: 'Spanish Arch 🇪🇸',
-            type: 'venue'
-          },
-          {
-            id: '4',
+            id: 'e1',
+            type: 'event',
             position: [53.2816, -9.0601],
-            popupText: 'Music Festival 🎵',
-            type: 'event'
+            popupText: 'Summer Music Festival',
+            imageUrl: 'https://via.placeholder.com/100x100.png?text=Event',
+            description: 'Live bands, local food, and good vibes!',
+            hostedBy: 'Galway Events Ltd.',
+            date: '2025-07-15',
+            time: {
+              start: '18:00',
+              end: '23:00'
+            },
+            price: {
+              amount: 20,
+              currency: '€'
+            }
           },
           {
-            id: '5',
+            id: 'e2',
+            type: 'event',
             position: [53.2906, -9.0651],
-            popupText: 'Art Exhibition 🎨',
-            type: 'event'
-          },
+            popupText: 'Art Exhibition at The Arch',
+            imageUrl: 'https://via.placeholder.com/100x100.png?text=Event',
+            description: 'Featuring emerging artists from Galway.',
+            hostedBy: 'ArtCircle',
+            date: '2025-07-22',
+            time: {
+              start: '12:00',
+              end: '17:00'
+            },
+            price: {
+              amount: 10,
+              currency: '€'
+            }
+          }
         ];
+
 
         setMarkers(mockData);
       } catch (error) {
@@ -513,8 +551,11 @@ const PopupContent: React.FC<{ marker: MarkerData }> = ({ marker }) => {
     <div className="flex justify-between items-center mt-3">
       {onBook ? (
         <span className="text-sm font-bold text-primary">
-          {marker.type === 'event' ? (marker.price || '€15') : 'View Details'}
+          {marker.type === 'event'
+            ? `${marker.price?.currency ?? '€'}${marker.price?.amount ?? '15'}`
+            : 'View Details'}
         </span>
+
       ) : (
         <div />
       )}
@@ -566,7 +607,7 @@ const PopupContent: React.FC<{ marker: MarkerData }> = ({ marker }) => {
               <CalendarDays className="w-3 h-3" />
               <span>{marker.date || '01/01/25'}</span>
               <Clock className="w-3 h-3 ml-2" />
-              <span>{marker.time || '18:00'}</span>
+              <span>{marker.time.start || '18:00'}</span>
             </div>
 
             <h3 className="font-bold text-gray-800 text-sm line-clamp-2">

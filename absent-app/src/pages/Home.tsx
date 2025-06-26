@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import MapView from '../components/MapView';
 import FeaturedEvents from '../components/FeaturedCalendarList';
-import Footer from '../components/Footer';
 import NewsletterSignUp from '../components/NewsletterSignUp';
 import FindTypeSelector from '../components/FindTypeSelector';
 import ScrollToTopButton from '../components/ScrollToTopButton';
@@ -37,7 +36,6 @@ const Home = () => {
       <FeaturedEvents />
       <NewsletterSignUp />
       <ScrollToTopButton />
-      <Footer />
     </main>
   );
 };
