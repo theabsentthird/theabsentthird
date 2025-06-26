@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Calendar as LucideCalendar, ChevronDown, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 
 const FeaturedCalendarList = () => {
-    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [selectedDate] = useState(new Date()); //need setSelectedDate
     const [showCalendar, setShowCalendar] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(8); // default

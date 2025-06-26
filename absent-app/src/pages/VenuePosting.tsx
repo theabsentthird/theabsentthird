@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
-  MapPin, User, Mail, Phone, Image, Check, X, ChevronDown, ChevronUp
+  MapPin, User, Image, Check, X, ChevronDown, ChevronUp
 } from 'lucide-react';
 
 type VenueFormData = {
@@ -37,7 +37,7 @@ const amenitiesOptions = [
 const pricingTypes = ['hourly', 'daily', 'weekly', 'monthly'];
 
 const VenuePostingPage = () => {
-  const { register, handleSubmit, formState: { errors }, setValue } = useForm<VenueFormData>();
+  const { register, handleSubmit, formState: { errors } } = useForm<VenueFormData>(); //setValue
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [photoUrls, setPhotoUrls] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -84,7 +84,7 @@ const VenuePostingPage = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Basic Info */}
         <section className="bg-white rounded-xl shadow-md overflow-hidden">
-          <div 
+          <div
             className="flex justify-between items-center p-6 cursor-pointer bg-gradient-to-r from-primary to-primary-2"
             onClick={() => toggleSection('basic')}
           >
@@ -97,18 +97,18 @@ const VenuePostingPage = () => {
             <div className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Venue Name*</label>
-                <input 
-                  {...register('name', { required: 'Required' })} 
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" 
+                <input
+                  {...register('name', { required: 'Required' })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder="Enter venue name"
                 />
                 {errors.name && <p className="mt-1 text-sm text-secondary-1">{errors.name.message}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Description*</label>
-                <textarea 
-                  {...register('description', { required: 'Required' })} 
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" 
+                <textarea
+                  {...register('description', { required: 'Required' })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   rows={4}
                   placeholder="Describe your venue (facilities, atmosphere, etc.)"
                 />
@@ -120,7 +120,7 @@ const VenuePostingPage = () => {
 
         {/* Address */}
         <section className="bg-white rounded-xl shadow-md overflow-hidden">
-          <div 
+          <div
             className="flex justify-between items-center p-6 cursor-pointer bg-gradient-to-r from-primary to-primary-2"
             onClick={() => toggleSection('address')}
           >
@@ -154,7 +154,7 @@ const VenuePostingPage = () => {
 
         {/* Location */}
         <section className="bg-white rounded-xl shadow-md overflow-hidden">
-          <div 
+          <div
             className="flex justify-between items-center p-6 cursor-pointer bg-gradient-to-r from-primary to-primary-2"
             onClick={() => toggleSection('location')}
           >
@@ -167,22 +167,22 @@ const VenuePostingPage = () => {
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Latitude*</label>
-                <input 
-                  {...register('location.latitude', { required: 'Required' })} 
-                  type="number" 
-                  step="any" 
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" 
+                <input
+                  {...register('location.latitude', { required: 'Required' })}
+                  type="number"
+                  step="any"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder="e.g. 40.7128"
                 />
                 {errors.location?.latitude && <p className="mt-1 text-sm text-secondary-1">{errors.location.latitude.message}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Longitude*</label>
-                <input 
-                  {...register('location.longitude', { required: 'Required' })} 
-                  type="number" 
-                  step="any" 
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" 
+                <input
+                  {...register('location.longitude', { required: 'Required' })}
+                  type="number"
+                  step="any"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder="e.g. -74.0060"
                 />
                 {errors.location?.longitude && <p className="mt-1 text-sm text-secondary-1">{errors.location.longitude.message}</p>}
@@ -198,7 +198,7 @@ const VenuePostingPage = () => {
 
         {/* Capacity & Pricing */}
         <section className="bg-white rounded-xl shadow-md overflow-hidden">
-          <div 
+          <div
             className="flex justify-between items-center p-6 cursor-pointer bg-gradient-to-r from-primary to-primary-2"
             onClick={() => toggleSection('capacity')}
           >
@@ -211,33 +211,37 @@ const VenuePostingPage = () => {
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Capacity*</label>
-                <input 
-                  {...register('capacity', { required: 'Required', min: 1 })} 
-                  type="number" 
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" 
+                <input
+                  {...register('capacity', { required: 'Required', min: 1 })}
+                  type="number"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                   placeholder="Number of people"
                 />
                 {errors.capacity && <p className="mt-1 text-sm text-secondary-1">{errors.capacity.message}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Pricing Type*</label>
-                <select 
-                  {...register('pricing.type', { required: 'Required' })} 
+                <select
+                  {...register('pricing.type', { required: 'Required' })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                 >
                   <option value="">Select pricing type</option>
                   {pricingTypes.map((t) => <option key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>)}
                 </select>
-                {errors.pricing?.type && <p className="mt-1 text-sm text-secondary-1">{errors.pricing.type.message}</p>}
+                {typeof errors?.pricing?.type === 'object' && 'message' in errors.pricing.type && (
+                  <p className="mt-1 text-sm text-secondary-1">
+                    {errors.pricing.type.message}
+                  </p>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Price (€)*</label>
                 <div className="relative">
                   <span className="absolute left-3 top-2 text-gray-500">€</span>
-                  <input 
-                    {...register('pricing.price', { required: 'Required', min: 0 })} 
-                    type="number" 
-                    className="w-full pl-8 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent" 
+                  <input
+                    {...register('pricing.price', { required: 'Required', min: 0 })}
+                    type="number"
+                    className="w-full pl-8 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                     placeholder="0.00"
                     step="0.01"
                   />
@@ -250,7 +254,7 @@ const VenuePostingPage = () => {
 
         {/* Amenities */}
         <section className="bg-white rounded-xl shadow-md overflow-hidden">
-          <div 
+          <div
             className="flex justify-between items-center p-6 cursor-pointer bg-gradient-to-r from-primary to-primary-2"
             onClick={() => toggleSection('amenities')}
           >
@@ -268,11 +272,10 @@ const VenuePostingPage = () => {
                     key={a}
                     type="button"
                     onClick={() => handleAmenityToggle(a)}
-                    className={`flex items-center justify-center p-3 rounded-lg transition-all ${
-                      selectedAmenities.includes(a) 
-                        ? 'bg-primary text-white shadow-md' 
+                    className={`flex items-center justify-center p-3 rounded-lg transition-all ${selectedAmenities.includes(a)
+                        ? 'bg-primary text-white shadow-md'
                         : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                    }`}
+                      }`}
                   >
                     {a}
                   </button>
@@ -284,7 +287,7 @@ const VenuePostingPage = () => {
 
         {/* Photos */}
         <section className="bg-white rounded-xl shadow-md overflow-hidden">
-          <div 
+          <div
             className="flex justify-between items-center p-6 cursor-pointer bg-gradient-to-r from-primary to-primary-2"
             onClick={() => toggleSection('photos')}
           >
@@ -299,9 +302,9 @@ const VenuePostingPage = () => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                 {photoUrls.map((url, index) => (
                   <div key={index} className="relative group">
-                    <img 
-                      src={url} 
-                      alt={`Venue photo ${index + 1}`} 
+                    <img
+                      src={url}
+                      alt={`Venue photo ${index + 1}`}
                       className="w-full h-32 object-cover rounded-lg shadow-sm group-hover:opacity-90 transition-opacity"
                     />
                     <button
@@ -333,9 +336,9 @@ const VenuePostingPage = () => {
           <p className="text-sm text-gray-500">
             * Required fields
           </p>
-          <button 
-            type="submit" 
-            disabled={isSubmitting} 
+          <button
+            type="submit"
+            disabled={isSubmitting}
             className="px-8 py-3 bg-gradient-to-r from-secondary-1 to-secondary-2 text-white font-medium rounded-lg shadow-md hover:opacity-90 transition-opacity disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {isSubmitting ? (

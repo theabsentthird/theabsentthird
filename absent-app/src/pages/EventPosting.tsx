@@ -35,25 +35,23 @@ const tagsOptions = [
   'Networking', 'Charity', 'Family Friendly', 'Outdoor'
 ];
 
-const generateTimeOptions = () => {
-  const options = [];
-  for (let hour = 0; hour < 24; hour++) {
-    for (let minute = 0; minute < 60; minute += 30) {
-      const period = hour >= 12 ? 'PM' : 'AM';
-      const displayHour = hour % 12 === 0 ? 12 : hour % 12;
-      const paddedMinute = minute.toString().padStart(2, '0');
-      options.push({
-        value: `${hour.toString().padStart(2, '0')}:${paddedMinute}`,
-        label: `${displayHour}:${paddedMinute} ${period}`,
-        hour: hour,
-        minute: minute
-      });
-    }
-  }
-  return options;
-};
-
-const timeOptions = generateTimeOptions();
+// const generateTimeOptions = () => {
+//   const options = [];
+//   for (let hour = 0; hour < 24; hour++) {
+//     for (let minute = 0; minute < 60; minute += 30) {
+//       const period = hour >= 12 ? 'PM' : 'AM';
+//       const displayHour = hour % 12 === 0 ? 12 : hour % 12;
+//       const paddedMinute = minute.toString().padStart(2, '0');
+//       options.push({
+//         value: `${hour.toString().padStart(2, '0')}:${paddedMinute}`,
+//         label: `${displayHour}:${paddedMinute} ${period}`,
+//         hour: hour,
+//         minute: minute
+//       });
+//     }
+//   }
+//   return options;
+// };
 
 const EventPostingPage = () => {
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<EventFormData>({

@@ -10,7 +10,7 @@ import {
 import type { LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Search, Filter, X, MapPin, Calendar, ChevronDown, Bookmark, Share2, CalendarDays, Clock, User, Mail, Phone } from 'lucide-react';
-import { motion, AnimatePresence } from "framer-motion";
+import { motion} from "framer-motion";
 
 // Types
 type BaseMarker = {
