@@ -1,5 +1,5 @@
 // pages/host-your-event.tsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
   MapPin, User, Mail, Phone, Image, Check, X, ChevronDown, ChevronUp

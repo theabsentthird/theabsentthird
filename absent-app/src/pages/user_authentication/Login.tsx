@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, Facebook, Smartphone } from 'lucide-react';
 import { FcGoogle } from 'react-icons/fc';
 

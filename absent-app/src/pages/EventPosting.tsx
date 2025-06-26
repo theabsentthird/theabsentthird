@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { Calendar, Clock, MapPin, User, Image, Tag, Check, X, ChevronDown, ChevronUp, Search } from 'lucide-react';
 import DatePicker from 'react-datepicker';
@@ -706,7 +706,7 @@ const EventPostingPage = () => {
         </div>
       </form>
 
-      <style jsx>{`
+      <style>{`
         .hide-scrollbar {
           -ms-overflow-style: none;
           scrollbar-width: none;

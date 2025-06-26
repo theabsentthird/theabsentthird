@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar as LucideCalendar, ChevronDown, ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 
 const FeaturedCalendarList = () => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Check, X, Clock, MapPin, User, Mail } from 'lucide-react';
 
 type Venue = {

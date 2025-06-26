@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import MapView from '../components/MapView';
 import FeaturedEvents from '../components/FeaturedCalendarList';
 import NewsletterSignUp from '../components/NewsletterSignUp';

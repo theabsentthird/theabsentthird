@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 const NewsletterSignUp = () => {
   const [email, setEmail] = useState('');
