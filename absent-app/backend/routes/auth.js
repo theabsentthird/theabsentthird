@@ -9,21 +9,18 @@ dotenv.config();
 // @route   POST /api/auth/register
 // @desc    Register user
 
-// Register a new user
+// POST /api/register
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
-    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ error: 'User already exists' });
 
-    // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Save user
-    const user = new User({ name, email, password: hashedPassword });
+    const user = new User({ name, email, password: hashedPassword, role });
     await user.save();
 
     res.status(201).json({ message: 'User registered successfully' });

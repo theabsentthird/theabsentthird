@@ -9,6 +9,35 @@ const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [accountType, setAccountType] = useState<'personal' | 'business'>('personal');
 
+const handleRegister = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  try {
+    const response = await fetch('http://localhost:5000/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name,
+        email,
+        password,
+        role: accountType === 'business' ? 'business' : 'user'
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert('Account created!');
+      // e.g. redirect to login
+    } else {
+      alert(data.error || 'Registration failed.');
+    }
+  } catch (error) {
+    console.error(error);
+    alert('Error connecting to the server.');
+  }
+};
+
   return (
     <div className="min-h-screen bg-gray-50">
 
@@ -52,7 +81,7 @@ const RegisterPage = () => {
             <div className="flex-1 border-t border-gray-300"></div>
           </div>
           
-          <form className="space-y-4">
+          <form className="space-y-4" onSubmit={handleRegister}>
             {accountType === 'business' && (
               <div>
                 <label htmlFor="business-name" className="block text-sm font-medium text-gray-700 mb-1">Business Name</label>
