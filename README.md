@@ -78,3 +78,6 @@ Made with care by Nina Dorogaia
 ## 🪐 License
 
 MIT © Nina Dorogaia
+
+## Frontend config link
+http://theabsentthird-frontend.s3-website.eu-north-1.amazonaws.com/ 
