@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const dotenv = require('dotenv');
 dotenv.config();
+const auth = require('../middleware/auth');
 
 // @route   POST /api/auth/register
 // @desc    Register user
@@ -83,6 +84,39 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// @route PATCH /api/auth/update-password
+// @desc  Update user password (requires current password)
+router.patch(
+  '/update-password',
+  auth, // assuming you have an auth middleware to protect this route
+  async (req, res) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      const userId = req.user.id; // assuming auth middleware sets req.user
+
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ error: 'Both current and new password are required' });
+      }
+
+      // Find user
+      const user = await User.findById(userId);
+      if (!user) return res.status(404).json({ error: 'User not found' });
+
+      // Verify current password
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) return res.status(401).json({ error: 'Current password is incorrect' });
+
+      // Set new password and save
+      user.password = newPassword;
+      await user.save(); // pre‑hook hashes it
+
+      res.json({ message: 'Password updated successfully' });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+);
 
 
 module.exports = router;
