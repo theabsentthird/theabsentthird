@@ -5,7 +5,7 @@ const geocodeAddress = require('../utils/geocode'); // Utility function to geoco
 const auth = require('../middleware/auth');
 const authorizeRole = require('../middleware/authRole');
 
-// POST /venues — Create a new venue
+// POST /api/venues — Create a new venue
 router.post('/', async (req, res) => {
   try {
     const {
@@ -47,7 +47,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-
+// get all venues
+// GET /api/venues — Get all venues
 router.get('/', async (req, res) => {
   const venues = await Venue.find();
   res.json(venues);
