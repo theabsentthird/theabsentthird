@@ -96,10 +96,11 @@ router.post('/', auth, async (req, res) => {
 });
 
 // GET all bookings (protected if desired)
-router.get('/', auth, async (req, res) => {
+// GET /api/bookings
+router.get('/', async (req, res) => {
   try {
     const bookings = await Booking.find()
-      .populate('user')
+      .populate('user', '-password') // Exclude password field
       .populate('venue');
     res.json(bookings);
   } catch (err) {
